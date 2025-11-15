@@ -18,7 +18,7 @@ const Navbar = () => {
     { name: 'Features', href: '#features' },
     { name: 'Tech Stack', href: '#tech' },
     { name: 'Showcase', href: '#showcase' },
-    { name: 'Download', href: '#download' },
+    { name: 'Feedback', href: '#feedback' },
   ]
 
   return (

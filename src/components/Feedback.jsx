@@ -27,7 +27,7 @@ const Feedback = () => {
       name: 'Mike Chen',
       rating: 4,
       comment: 'Great app! The interface is intuitive and the water usage reports are very helpful. Would love to see more customization options.',
-      date: '1 week ago',
+      date: '3 days ago',
       category: 'feature'
     },
     {
@@ -35,17 +35,9 @@ const Feedback = () => {
       name: 'Emily Rodriguez',
       rating: 5,
       comment: 'As an environmental science teacher, I recommend this to all my students. The ecological impact tracking is fantastic!',
-      date: '3 days ago',
+      date: '1 week ago',
       category: 'general'
     },
-    {
-      id: 4,
-      name: 'David Kim',
-      rating: 4,
-      comment: 'The mobile app works seamlessly with my smart irrigation system. Minor bug with notifications but overall excellent.',
-      date: '5 days ago',
-      category: 'bug'
-    }
   ]
 
   const handleSubmit = (e) => {
@@ -70,7 +62,7 @@ const Feedback = () => {
   const averageRating = recentFeedback.reduce((acc, feedback) => acc + feedback.rating, 0) / recentFeedback.length
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section id="feedback" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

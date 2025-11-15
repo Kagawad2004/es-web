@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FaStar, FaPaperPlane, FaUser, FaQuoteLeft } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 
 const Feedback = () => {
+  const [recentFeedback, setRecentFeedback] = useState([])
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,33 +13,23 @@ const Feedback = () => {
   })
   const [submitted, setSubmitted] = useState(false)
 
-  // Sample recent feedback data
-  const recentFeedback = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      rating: 5,
-      comment: 'EcoSprinkle has completely transformed how I manage my garden watering. The smart scheduling saves so much water!',
-      date: '2 days ago',
-      category: 'general'
-    },
-    {
-      id: 2,
-      name: 'Mike Chen',
-      rating: 4,
-      comment: 'Great app! The interface is intuitive and the water usage reports are very helpful. Would love to see more customization options.',
-      date: '3 days ago',
-      category: 'feature'
-    },
-    {
-      id: 3,
-      name: 'Emily Rodriguez',
-      rating: 5,
-      comment: 'As an environmental science teacher, I recommend this to all my students. The ecological impact tracking is fantastic!',
-      date: '1 week ago',
-      category: 'general'
-    },
-  ]
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        const response = await fetch('/api/feedback')
+        if (response.ok) {
+          const data = await response.json()
+          setRecentFeedback(data)
+        } else {
+          console.error('Failed to fetch feedback')
+        }
+      } catch (error) {
+        console.error('Error fetching feedback:', error)
+      }
+    }
+
+    fetchFeedback()
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -55,6 +46,12 @@ const Feedback = () => {
       if (response.ok) {
         setSubmitted(true)
         setFormData({ name: '', email: '', rating: 5, category: 'general', message: '' })
+        // Refresh feedback list after submission
+        const updatedFeedback = await fetch('/api/feedback')
+        if (updatedFeedback.ok) {
+          const data = await updatedFeedback.json()
+          setRecentFeedback(data)
+        }
       } else {
         console.error('Failed to submit feedback')
       }
@@ -71,7 +68,7 @@ const Feedback = () => {
   }
 
   // Calculate average rating
-  const averageRating = recentFeedback.reduce((acc, feedback) => acc + feedback.rating, 0) / recentFeedback.length
+  const averageRating = recentFeedback.reduce((acc, feedback) => acc + feedback.rating, 0) / recentFeedback.length || 0
 
   return (
     <section id="feedback" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">

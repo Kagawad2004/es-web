@@ -21,10 +21,12 @@ const Feedback = () => {
           const data = await response.json()
           setRecentFeedback(data)
         } else {
-          console.error('Failed to fetch feedback')
+          console.error('Failed to fetch feedback:', response.status, response.statusText)
         }
       } catch (error) {
         console.error('Error fetching feedback:', error)
+        // Set empty array to prevent errors in rendering
+        setRecentFeedback([])
       }
     }
 
@@ -52,11 +54,16 @@ const Feedback = () => {
           const data = await updatedFeedback.json()
           setRecentFeedback(data)
         }
+        // Reset submitted state after 3 seconds
+        setTimeout(() => setSubmitted(false), 3000)
       } else {
-        console.error('Failed to submit feedback')
+        const errorData = await response.json()
+        console.error('Failed to submit feedback:', errorData)
+        alert('Failed to submit feedback. Please check all fields.')
       }
     } catch (error) {
       console.error('Error submitting feedback:', error)
+      alert('Network error. Please check your connection and try again.')
     }
   }
 
@@ -243,7 +250,7 @@ const Feedback = () => {
               <div className="space-y-4 max-h-96 overflow-y-auto pr-4">
                 {recentFeedback.map((feedback, index) => (
                   <motion.div
-                    key={feedback.id}
+                    key={feedback._id}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -257,7 +264,7 @@ const Feedback = () => {
                         </div>
                         <div>
                           <h4 className="font-semibold text-gray-900">{feedback.name}</h4>
-                          <p className="text-sm text-gray-500">{feedback.date}</p>
+                          <p className="text-sm text-gray-500">{new Date(feedback.date).toLocaleDateString()}</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-1">
@@ -273,7 +280,7 @@ const Feedback = () => {
                     </div>
                     <div className="flex space-x-3">
                       <FaQuoteLeft className="text-primary/20 text-lg mt-1 flex-shrink-0" />
-                      <p className="text-gray-700 leading-relaxed">{feedback.comment}</p>
+                      <p className="text-gray-700 leading-relaxed">{feedback.message}</p>
                     </div>
                     <div className="mt-3">
                       <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">

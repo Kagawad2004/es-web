@@ -16,7 +16,7 @@ const Feedback = () => {
   useEffect(() => {
     const fetchFeedback = async () => {
       try {
-        const response = await fetch('/api/feedback')
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/feedback`)
         if (response.ok) {
           const data = await response.json()
           setRecentFeedback(data)
@@ -35,7 +35,7 @@ const Feedback = () => {
     e.preventDefault()
 
     try {
-      const response = await fetch('/api/feedback', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ const Feedback = () => {
         setSubmitted(true)
         setFormData({ name: '', email: '', rating: 5, category: 'general', message: '' })
         // Refresh feedback list after submission
-        const updatedFeedback = await fetch('/api/feedback')
+        const updatedFeedback = await fetch(`${import.meta.env.VITE_API_URL}/api/feedback`)
         if (updatedFeedback.ok) {
           const data = await updatedFeedback.json()
           setRecentFeedback(data)

@@ -71,7 +71,14 @@ const Feedback = () => {
       } else {
         const errorData = await response.json()
         console.error('Failed to submit feedback:', errorData)
-        alert('Failed to submit feedback. Please check all fields.')
+        
+        // Show specific validation errors if available
+        if (errorData.errors && errorData.errors.length > 0) {
+          const errorMessages = errorData.errors.map(err => err.msg).join('\n')
+          alert('Validation Error:\n\n' + errorMessages)
+        } else {
+          alert('Failed to submit feedback. Please check all fields.')
+        }
       }
     } catch (error) {
       console.error('Error submitting feedback:', error)
@@ -208,10 +215,14 @@ const Feedback = () => {
                     value={formData.message}
                     onChange={handleChange}
                     required
+                    minLength={4}
                     rows="6"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                     placeholder="Share your thoughts, suggestions, or report an issue..."
                   ></textarea>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.message.length}/4 characters minimum
+                  </p>
                 </div>
 
                 <button

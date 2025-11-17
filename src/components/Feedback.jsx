@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 
 const Feedback = () => {
   const [recentFeedback, setRecentFeedback] = useState([])
+  const [stats, setStats] = useState({ total: 0, averageRating: 0, satisfaction: 0 })
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -27,7 +28,20 @@ const Feedback = () => {
         })
         if (response.ok) {
           const data = await response.json()
-          setRecentFeedback(data)
+          // Handle both old format (array) and new format (object with feedbacks and stats)
+          if (Array.isArray(data)) {
+            setRecentFeedback(data)
+            // Calculate stats from array for backward compatibility
+            const avgRating = data.reduce((acc, f) => acc + f.rating, 0) / data.length || 0
+            setStats({
+              total: data.length,
+              averageRating: avgRating,
+              satisfaction: Math.round(avgRating / 5 * 100)
+            })
+          } else {
+            setRecentFeedback(data.feedbacks || [])
+            setStats(data.stats || { total: 0, averageRating: 0, satisfaction: 0 })
+          }
         } else {
           console.error('Failed to fetch feedback:', response.status, response.statusText)
           setError(`Server returned ${response.status}`)
@@ -64,7 +78,18 @@ const Feedback = () => {
         const updatedFeedback = await fetch(`${import.meta.env.VITE_API_URL}/api/feedback`)
         if (updatedFeedback.ok) {
           const data = await updatedFeedback.json()
-          setRecentFeedback(data)
+          if (Array.isArray(data)) {
+            setRecentFeedback(data)
+            const avgRating = data.reduce((acc, f) => acc + f.rating, 0) / data.length || 0
+            setStats({
+              total: data.length,
+              averageRating: avgRating,
+              satisfaction: Math.round(avgRating / 5 * 100)
+            })
+          } else {
+            setRecentFeedback(data.feedbacks || [])
+            setStats(data.stats || { total: 0, averageRating: 0, satisfaction: 0 })
+          }
         }
         // Reset submitted state after 3 seconds
         setTimeout(() => setSubmitted(false), 3000)
@@ -93,8 +118,8 @@ const Feedback = () => {
     })
   }
 
-  // Calculate average rating
-  const averageRating = recentFeedback.reduce((acc, feedback) => acc + feedback.rating, 0) / recentFeedback.length || 0
+  // Use stats from API
+  const averageRating = stats.averageRating
 
   return (
     <section id="feedback" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
@@ -246,11 +271,19 @@ const Feedback = () => {
           >
             {/* Overall Rating Summary */}
             <div className="card text-center">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Community Feedback</h3>
-              <div className="flex items-center justify-center space-x-4 mb-4">
-                <div className="text-5xl font-bold text-primary">{averageRating.toFixed(1)}</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Community Stats</h3>
+              
+              <div className="space-y-6">
+                {/* Total Feedback Count */}
                 <div>
-                  <div className="flex items-center space-x-1 mb-2">
+                  <div className="text-5xl font-bold text-primary mb-2">{stats.total}+</div>
+                  <p className="text-gray-600 text-sm uppercase tracking-wide">Feedback Received</p>
+                </div>
+                
+                {/* Average Rating */}
+                <div className="border-t pt-6">
+                  <div className="text-4xl font-bold text-primary mb-2">{averageRating.toFixed(1)}/5</div>
+                  <div className="flex items-center justify-center space-x-1 mb-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <FaStar
                         key={star}
@@ -260,9 +293,13 @@ const Feedback = () => {
                       />
                     ))}
                   </div>
-                  <p className="text-gray-600 text-sm">
-                    Based on {recentFeedback.length} reviews
-                  </p>
+                  <p className="text-gray-600 text-sm uppercase tracking-wide">Average Rating</p>
+                </div>
+                
+                {/* User Satisfaction */}
+                <div className="border-t pt-6">
+                  <div className="text-4xl font-bold text-primary mb-2">{stats.satisfaction}%</div>
+                  <p className="text-gray-600 text-sm uppercase tracking-wide">User Satisfaction</p>
                 </div>
               </div>
             </div>
